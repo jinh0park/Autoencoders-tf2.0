@@ -4,14 +4,14 @@ from tensorflow.keras.layers import InputLayer, Conv2D, Flatten, Dense, Conv2DTr
 
 
 class AE(tf.keras.Model):
-    def __init__(self, latent_dim: int, net_type:str='conv', lr: float=1e-4):
+    def __init__(self, latent_dim: int, net_type:str='simple'):
         super(AE, self).__init__()
         self.latent_dim = latent_dim
-        self.optimizer = tf.keras.optimizers.Adam(lr)
         assert net_type in ['simple', 'conv']
         if net_type == "simple":
             self.inference_net = tf.keras.Sequential([
                 InputLayer(input_shape=[28, 28, 1]),
+                Flatten(),
                 Dense(256, activation='relu'),
                 Dense(128, activation='relu'),
                 Dense(self.latent_dim),
@@ -67,16 +67,35 @@ class AE(tf.keras.Model):
             return probs
         return logits
 
+    def compute_loss(model, x, y):
+        mean, logvar = model.encode(x, y)
+        z = model.reparameterize(mean, logvar)
+        x_logits = model.decode(z, y)
+
+        x_flatten = tf.keras.layers.Flatten()(x)
+
+        # cross_ent = - marginal likelihood
+        cross_ent = tf.nn.sigmoid_cross_entropy_with_logits(logits=x_logits, labels=x_flatten)
+        marginal_likelihood = - tf.reduce_sum(cross_ent, axis=1)
+        marginal_likelihood = tf.reduce_mean(marginal_likelihood)
+
+        KL_divergence = tf.reduce_sum(mean ** 2 + tf.exp(logvar) - logvar - 1, axis=1)
+        KL_divergence = tf.reduce_mean(KL_divergence)
+
+        ELBO = marginal_likelihood - KL_divergence
+        loss = -ELBO
+        return loss
+
 
 class VAE(tf.keras.Model):
-    def __init__(self, latent_dim: int, net_type: str='conv', lr: float=1e-4):
+    def __init__(self, latent_dim: int, net_type: str='simple'):
         super(VAE, self).__init__()
         self.latent_dim = latent_dim
-        self.optimizer = tf.keras.optimizers.Adam(lr)
         assert net_type in ['simple', 'conv']
         if net_type == "simple":
             self.inference_net = tf.keras.Sequential([
                 InputLayer(input_shape=[28, 28, 1]),
+                Flatten(),
                 Dense(128, activation='relu'),
                 Dense(64, activation='relu'),
                 Dense(self.latent_dim * 2),    # [means, stds]
@@ -124,7 +143,7 @@ class VAE(tf.keras.Model):
 
     def encode(self, x):
         mean_logvar = self.inference_net(x)
-        N, _ = mean_logvar.shape
+        N = mean_logvar.shape[0]
         mean = tf.slice(mean_logvar, [0, 0], [N, self.latent_dim])
         logvar = tf.slice(mean_logvar, [0, self.latent_dim], [N, self.latent_dim])
         return mean, logvar
@@ -142,10 +161,9 @@ class VAE(tf.keras.Model):
 
 
 class CVAE(tf.keras.Model):
-    def __init__(self, latent_dim: int, net_type: str='simple', lr: float=1e-4):
+    def __init__(self, latent_dim: int, net_type: str='simple'):
         super(CVAE, self).__init__()
         self.latent_dim = latent_dim
-        self.optimizer = tf.keras.optimizers.Adam(lr)
         self.num_classes = 10
         assert net_type in ['simple', 'conv']
         if net_type == "simple":
@@ -166,15 +184,15 @@ class CVAE(tf.keras.Model):
 
     def encode(self, x, y):
         conditional_x = tf.concat([Flatten()(x), tf.one_hot(y, self.num_classes)], 1)
-        mean_logvar = self.encoder(conditional_x)
-        N, _ = mean_logvar.shape
+        mean_logvar = self.inference_net(conditional_x)
+        N = mean_logvar.shape[0]
         mean = tf.slice(mean_logvar, [0, 0], [N, self.latent_dim])
         logvar = tf.slice(mean_logvar, [0, self.latent_dim], [N, self.latent_dim])
         return mean, logvar
 
     def decode(self, z, y, apply_sigmoid=False):
         conditional_z = tf.concat([Flatten()(z), tf.one_hot(y, self.num_classes)], 1)
-        logits = self.decoder(conditional_z)
+        logits = self.generative_net(conditional_z)
         if apply_sigmoid:
             probs = tf.sigmoid(logits)
             return probs

@@ -5,7 +5,9 @@ class AETrain:
     @staticmethod
     def compute_loss(model, x):
         loss_object = tf.keras.losses.BinaryCrossentropy()
-        loss = loss_object(x, model(x))
+        z = model.encode(x)
+        x_logits = model.decode(z)
+        loss = loss_object(x, x_logits)
         return loss
 
     @staticmethod
