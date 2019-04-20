@@ -1,5 +1,5 @@
 import tensorflow as tf
-from utils import mnist
+from utils import mnist, plot
 from model.autoencoder import AE, VAE, CVAE
 from train_utils.autoencoder import AETrain, VAETrain, CVAETrain
 import time
@@ -10,18 +10,20 @@ def parse_args():
     desc = "Tensorflow 2.0 implementation of 'AutoEncoder Families (AE, VAE, CVAE(Conditional VAE))'"
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('--ae_type', type=str, default=False,
-                        help='Type of autoencoder: [AE, VAE, CVAE] ')
+                        help='Type of autoencoder: [AE, VAE, CVAE]')
     parser.add_argument('--latent_dim', type=int, default=2,
                         help='Degree of latent dimension(a.k.a. "z")')
+    parser.add_argument('--num_epochs', type=int, default=150,
+                        help='The number of training epochs')
 
 
 # only for AE
 def train_AE():
-    epochs = 10
+    epochs = 60
     latent_dim = 10
     model = AE(latent_dim)
 
-    train_dataset, _ = mnist.load_dataset()
+    train_dataset, test_dataset = mnist.load_dataset()
 
     optimizer = tf.keras.optimizers.Adam(1e-4)
 
@@ -30,8 +32,11 @@ def train_AE():
         for train_x, _ in train_dataset:
             gradients, loss = AETrain.compute_gradients(model, train_x)
             AETrain.apply_gradients(optimizer, gradients, model.trainable_variables)
-        if (epoch % 1 == 0):
+        if epoch % 10 == 0:
             print(f'Epoch {epoch}, Loss: {loss}, Remaining Time at This Epoch: {time.time() - t:.2f}')
+
+    plot.plot_AE(model, test_dataset)
+
     return model
 
 
@@ -40,7 +45,7 @@ def train_VAE():
     latent_dim = 10
     model = VAE(latent_dim)
 
-    train_dataset, _ = mnist.load_dataset()
+    train_dataset, test_dataset = mnist.load_dataset()
 
     optimizer = tf.keras.optimizers.Adam(1e-4)
 
@@ -49,7 +54,7 @@ def train_VAE():
         for train_x, _ in train_dataset:
             gradients, loss = VAETrain.compute_gradients(model, train_x)
             VAETrain.apply_gradients(optimizer, gradients, model.trainable_variables)
-        if (epoch % 1 == 0):
+        if epoch % 10 == 0:
             print(f'Epoch {epoch}, Loss: {loss}, Remaining Time at This Epoch: {time.time() - t:.2f}')
     return model
 
@@ -59,7 +64,7 @@ def train_CVAE():
     latent_dim = 10
     model = CVAE(latent_dim)
 
-    train_dataset, _ = mnist.load_dataset()
+    train_dataset, test_dataset = mnist.load_dataset()
 
     optimizer = tf.keras.optimizers.Adam(1e-4)
 
@@ -68,9 +73,10 @@ def train_CVAE():
         for train_x, train_y in train_dataset:
             gradients, loss = CVAETrain.compute_gradients(model, train_x, train_y)
             CVAETrain.apply_gradients(optimizer, gradients, model.trainable_variables)
-        if (epoch % 1 == 0):
+        if epoch % 1 == 0:
             print(f'Epoch {epoch}, Loss: {loss}, Remaining Time at This Epoch: {time.time() - t:.2f}')
     return model
 
 if __name__ == "__main__":
+    train_AE()
     pass
