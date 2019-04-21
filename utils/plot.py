@@ -60,7 +60,7 @@ def plot_VAE(model, test_dataset):
     sample_dataset = test_dataset
     x_input, y_input = next(sample_dataset.__iter__())
     x_input_sample, y_input_sample = map(lambda x: x[:n], (x_input, y_input))
-    z = model.encode(x_input_sample).numpy()
+    z = model.encode(x_input_sample)[0].numpy()
 
     fig, axarr = plt.subplots(2, 5, figsize=(5, 2))
     x_input_sample = x_input_sample.numpy().reshape([n, 28, 28])
@@ -79,7 +79,7 @@ def plot_VAE(model, test_dataset):
     This part is significant only if the latent dimension is 2,
     but it works in other cases anyway.
     '''
-    z = model.encode(x_input)
+    z, _ = model.encode(x_input)
     labels = y_input.numpy()
     z1, z2 = z.numpy().T[0], z.numpy().T[1]
 
@@ -107,7 +107,7 @@ def plot_CVAE(model, test_dataset):
     sample_dataset = test_dataset
     x_input, y_input = next(sample_dataset.__iter__())
     x_input_sample, y_input_sample = map(lambda x: x[:n], (x_input, y_input))
-    z = model.encode(x_input_sample, y_input_sample).numpy()
+    z = model.encode(x_input_sample, y_input_sample)[0].numpy()
 
     fig, axarr = plt.subplots(2, 5, figsize=(5, 2))
     x_input_sample = x_input_sample.numpy().reshape([n, 28, 28])
@@ -126,7 +126,7 @@ def plot_CVAE(model, test_dataset):
     This part is significant only if the latent dimension is 2,
     but it works in other cases anyway.
     '''
-    z = model.encode(x_input)
+    z, _ = model.encode(x_input)
     labels = y_input.numpy()
     z1, z2 = z.numpy().T[0], z.numpy().T[1]
 

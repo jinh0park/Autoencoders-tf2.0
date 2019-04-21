@@ -25,7 +25,7 @@ def parse_args():
 
 
 def train_AE(latent_dim=2, epochs=100, lr=1e-4, batch_size=1000):
-    model = AE(latent_dim)
+    model = AE(latent_dim, net_type='conv')
 
     train_dataset, test_dataset = mnist.load_dataset(batch_size=batch_size)
 
@@ -45,7 +45,7 @@ def train_AE(latent_dim=2, epochs=100, lr=1e-4, batch_size=1000):
 
 
 def train_VAE(latent_dim=2, epochs=100, lr=1e-4, batch_size=1000):
-    model = VAE(latent_dim)
+    model = VAE(latent_dim, net_type='conv')
 
     train_dataset, test_dataset = mnist.load_dataset(batch_size=batch_size)
 
@@ -58,6 +58,9 @@ def train_VAE(latent_dim=2, epochs=100, lr=1e-4, batch_size=1000):
             VAETrain.apply_gradients(optimizer, gradients, model.trainable_variables)
         if epoch % 10 == 0:
             print(f'Epoch {epoch}, Loss: {loss}, Remaining Time at This Epoch: {time.time() - t:.2f}')
+
+    plot.plot_VAE(model, test_dataset)
+
     return model
 
 
@@ -75,6 +78,9 @@ def train_CVAE(latent_dim=2, epochs=100, lr=1e-4, batch_size=1000):
             CVAETrain.apply_gradients(optimizer, gradients, model.trainable_variables)
         if epoch % 10 == 0:
             print(f'Epoch {epoch}, Loss: {loss}, Remaining Time at This Epoch: {time.time() - t:.2f}')
+
+    plot.plot_CVAE(model, test_dataset)
+
     return model
 
 
@@ -87,14 +93,14 @@ def main(args):
             batch_size=args.batch_size
         )
     elif args.ae_type == 'VAE':
-        train_AE(
+        train_VAE(
             latent_dim=args.latent_dim,
             epochs=args.num_epochs,
             lr=args.learn_rate,
             batch_size=args.batch_size
         )
     elif args.ae_type == 'CVAE':
-        train_AE(
+        train_CVAE(
             latent_dim=args.latent_dim,
             epochs=args.num_epochs,
             lr=args.learn_rate,

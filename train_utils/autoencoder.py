@@ -30,7 +30,7 @@ class VAETrain:
 
         # cross_ent = - marginal likelihood
         cross_ent = tf.nn.sigmoid_cross_entropy_with_logits(logits=x_logits, labels=x)
-        marginal_likelihood = - tf.reduce_sum(cross_ent, axis=1)
+        marginal_likelihood = - tf.reduce_sum(cross_ent, axis=[1, 2, 3])
         marginal_likelihood = tf.reduce_mean(marginal_likelihood)
 
         KL_divergence = tf.reduce_sum(mean ** 2 + tf.exp(logvar) - logvar - 1, axis=1)
@@ -60,7 +60,7 @@ class CVAETrain:
 
         # cross_ent = - marginal likelihood
         cross_ent = tf.nn.sigmoid_cross_entropy_with_logits(logits=x_logits, labels=x)
-        marginal_likelihood = - tf.reduce_sum(cross_ent, axis=1)
+        marginal_likelihood = - tf.reduce_sum(cross_ent, axis=[1, 2, 3])
         marginal_likelihood = tf.reduce_mean(marginal_likelihood)
 
         KL_divergence = tf.reduce_sum(mean ** 2 + tf.exp(logvar) - logvar - 1, axis=1)
