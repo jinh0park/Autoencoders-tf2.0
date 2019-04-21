@@ -1,4 +1,4 @@
-# Some of codes were referred to tensorflow 2.0 official tutorial for VAE
+# Some of codes referred to tensorflow 2.0 official tutorial for VAE
 import tensorflow as tf
 from tensorflow.keras.layers import InputLayer, Conv2D, Flatten, Dense, Conv2DTranspose, Reshape
 

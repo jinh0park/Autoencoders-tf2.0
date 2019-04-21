@@ -16,14 +16,14 @@ def normalize(train_images, test_images):
     return train_images, test_images
 
 
-def load_dataset():
+def load_dataset(batch_size=1000):
     (train_images, train_labels), (test_images, test_labels) = download_images()
     train_images, test_images = normalize(train_images, test_images)
 
     TRAIN_BUF = 60000
     TEST_BUF = 10000
 
-    BATCH_SIZE = 1000
+    BATCH_SIZE = batch_size
 
     train_dataset_image = tf.data.Dataset.from_tensor_slices(train_images).batch(BATCH_SIZE)
     train_dataset_label = tf.data.Dataset.from_tensor_slices(train_labels).batch(BATCH_SIZE)

@@ -1,3 +1,5 @@
+# parser_args code referred the hwalseoklee's code:
+# https://github.com/hwalsuklee/tensorflow-mnist-VAE/blob/master/run_main.py
 import tensorflow as tf
 from utils import mnist, plot
 from model.autoencoder import AE, VAE, CVAE
@@ -13,19 +15,21 @@ def parse_args():
                         help='Type of autoencoder: [AE, VAE, CVAE]')
     parser.add_argument('--latent_dim', type=int, default=2,
                         help='Degree of latent dimension(a.k.a. "z")')
-    parser.add_argument('--num_epochs', type=int, default=150,
+    parser.add_argument('--num_epochs', type=int, default=100,
                         help='The number of training epochs')
+    parser.add_argument('--learn_rate', type=float, default=1e-4,
+                        help='Learning rate during training')
+    parser.add_argument('--batch_size', type=int, default=1000,
+                        help='Batch size')
+    return parser.parse_args()
 
 
-# only for AE
-def train_AE():
-    epochs = 60
-    latent_dim = 10
+def train_AE(latent_dim=2, epochs=100, lr=1e-4, batch_size=1000):
     model = AE(latent_dim)
 
-    train_dataset, test_dataset = mnist.load_dataset()
+    train_dataset, test_dataset = mnist.load_dataset(batch_size=batch_size)
 
-    optimizer = tf.keras.optimizers.Adam(1e-4)
+    optimizer = tf.keras.optimizers.Adam(lr)
 
     for epoch in range(1, epochs + 1):
         t = time.time()
@@ -40,14 +44,12 @@ def train_AE():
     return model
 
 
-def train_VAE():
-    epochs = 10
-    latent_dim = 10
+def train_VAE(latent_dim=2, epochs=100, lr=1e-4, batch_size=1000):
     model = VAE(latent_dim)
 
-    train_dataset, test_dataset = mnist.load_dataset()
+    train_dataset, test_dataset = mnist.load_dataset(batch_size=batch_size)
 
-    optimizer = tf.keras.optimizers.Adam(1e-4)
+    optimizer = tf.keras.optimizers.Adam(lr)
 
     for epoch in range(1, epochs + 1):
         t = time.time()
@@ -59,24 +61,49 @@ def train_VAE():
     return model
 
 
-def train_CVAE():
-    epochs = 10
-    latent_dim = 10
+def train_CVAE(latent_dim=2, epochs=100, lr=1e-4, batch_size=1000):
     model = CVAE(latent_dim)
 
-    train_dataset, test_dataset = mnist.load_dataset()
+    train_dataset, test_dataset = mnist.load_dataset(batch_size=batch_size)
 
-    optimizer = tf.keras.optimizers.Adam(1e-4)
+    optimizer = tf.keras.optimizers.Adam(lr)
 
     for epoch in range(1, epochs + 1):
         t = time.time()
         for train_x, train_y in train_dataset:
             gradients, loss = CVAETrain.compute_gradients(model, train_x, train_y)
             CVAETrain.apply_gradients(optimizer, gradients, model.trainable_variables)
-        if epoch % 1 == 0:
+        if epoch % 10 == 0:
             print(f'Epoch {epoch}, Loss: {loss}, Remaining Time at This Epoch: {time.time() - t:.2f}')
     return model
 
+
+def main(args):
+    if args.ae_type == 'AE':
+        train_AE(
+            latent_dim=args.latent_dim,
+            epochs=args.num_epochs,
+            lr=args.learn_rate,
+            batch_size=args.batch_size
+        )
+    elif args.ae_type == 'VAE':
+        train_AE(
+            latent_dim=args.latent_dim,
+            epochs=args.num_epochs,
+            lr=args.learn_rate,
+            batch_size=args.batch_size
+        )
+    elif args.ae_type == 'CVAE':
+        train_AE(
+            latent_dim=args.latent_dim,
+            epochs=args.num_epochs,
+            lr=args.learn_rate,
+            batch_size=args.batch_size
+        )
+
+
 if __name__ == "__main__":
-    train_AE()
-    pass
+    args = parse_args()
+    if args is None:
+        exit()
+    main(args)
