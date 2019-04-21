@@ -33,11 +33,15 @@ def train_AE(latent_dim=2, epochs=100, lr=1e-4, batch_size=1000):
 
     for epoch in range(1, epochs + 1):
         t = time.time()
+        last_loss = 0
         for train_x, _ in train_dataset:
             gradients, loss = AETrain.compute_gradients(model, train_x)
             AETrain.apply_gradients(optimizer, gradients, model.trainable_variables)
+            last_loss = loss
         if epoch % 10 == 0:
-            print(f'Epoch {epoch}, Loss: {loss}, Remaining Time at This Epoch: {time.time() - t:.2f}')
+            print('Epoch {}, Loss: {}, Remaining Time at This Epoch: {:.2f}'.format(
+                epoch, last_loss, time.time() - t
+            ))
 
     plot.plot_AE(model, test_dataset)
 
@@ -53,11 +57,15 @@ def train_VAE(latent_dim=2, epochs=100, lr=1e-4, batch_size=1000):
 
     for epoch in range(1, epochs + 1):
         t = time.time()
+        last_loss = 0
         for train_x, _ in train_dataset:
             gradients, loss = VAETrain.compute_gradients(model, train_x)
             VAETrain.apply_gradients(optimizer, gradients, model.trainable_variables)
+            last_loss = loss
         if epoch % 10 == 0:
-            print(f'Epoch {epoch}, Loss: {loss}, Remaining Time at This Epoch: {time.time() - t:.2f}')
+            print('Epoch {}, Loss: {}, Remaining Time at This Epoch: {:.2f}'.format(
+                epoch, last_loss, time.time() - t
+            ))
 
     plot.plot_VAE(model, test_dataset)
 
@@ -73,11 +81,15 @@ def train_CVAE(latent_dim=2, epochs=100, lr=1e-4, batch_size=1000):
 
     for epoch in range(1, epochs + 1):
         t = time.time()
+        last_loss = 0
         for train_x, train_y in train_dataset:
             gradients, loss = CVAETrain.compute_gradients(model, train_x, train_y)
             CVAETrain.apply_gradients(optimizer, gradients, model.trainable_variables)
+            last_loss = loss
         if epoch % 10 == 0:
-            print(f'Epoch {epoch}, Loss: {loss}, Remaining Time at This Epoch: {time.time() - t:.2f}')
+            print('Epoch {}, Loss: {}, Remaining Time at This Epoch: {:.2f}'.format(
+                epoch, last_loss, time.time() - t
+            ))
 
     plot.plot_CVAE(model, test_dataset)
 
