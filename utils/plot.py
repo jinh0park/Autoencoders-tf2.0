@@ -53,6 +53,8 @@ def plot_AE(model, test_dataset):
 
 
 def plot_VAE(model, test_dataset):
+    if not os.path.exists("results"):
+        os.makedirs("results")
     # --- Reconstruction plot ---
     n = 5
     sample_dataset = test_dataset
@@ -98,6 +100,8 @@ def plot_VAE(model, test_dataset):
 
 
 def plot_CVAE(model, test_dataset):
+    if not os.path.exists("results"):
+        os.makedirs("results")
     # --- Reconstruction plot ---
     n = 5
     sample_dataset = test_dataset
