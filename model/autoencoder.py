@@ -12,15 +12,15 @@ class AE(tf.keras.Model):
             self.inference_net = tf.keras.Sequential([
                 InputLayer(input_shape=[28, 28, 1]),
                 Flatten(),
-                Dense(256, activation='relu'),
                 Dense(128, activation='relu'),
+                Dense(64, activation='relu'),
                 Dense(self.latent_dim),
             ])
             self.generative_net = tf.keras.Sequential([
                 InputLayer(input_shape=[self.latent_dim]),
+                Dense(64, activation='relu'),
                 Dense(128, activation='relu'),
-                Dense(256, activation='relu'),
-                Dense(28 * 28 * 1),
+                Dense(28 * 28 * 1, activation='sigmoid'),
                 Reshape(target_shape=[28, 28, 1]),
             ])
         if net_type == "conv":
@@ -31,13 +31,13 @@ class AE(tf.keras.Model):
                 Conv2D(
                     filters=64, kernel_size=3, strides=(2, 2), activation='relu'),
                 Flatten(),
-                Dense(256, activation='relu'),
+                Dense(64, activation='relu'),
                 # No activation
                 Dense(self.latent_dim),
             ])
             self.generative_net = tf.keras.Sequential([
                 InputLayer(input_shape=[self.latent_dim]),
-                Dense(256, activation='relu'),
+                Dense(64, activation='relu'),
                 Dense(7 * 7 * 32, activation='relu'),
                 Reshape(target_shape=(7, 7, 32)),
                 Conv2DTranspose(
@@ -54,37 +54,15 @@ class AE(tf.keras.Model):
                     activation='relu'),
                 # No activation
                 Conv2DTranspose(
-                    filters=1, kernel_size=3, strides=(1, 1), padding="SAME"),
+                    filters=1, kernel_size=3, strides=(1, 1), padding="SAME", activation='sigmoid'),
             ])
             
     def encode(self, x):
         return self.inference_net(x)
 
-    def decode(self, z, apply_sigmoid=False):
+    def decode(self, z):
         logits = self.generative_net(z)
-        if apply_sigmoid:
-            probs = tf.sigmoid(logits)
-            return probs
         return logits
-
-    def compute_loss(model, x, y):
-        mean, logvar = model.encode(x, y)
-        z = model.reparameterize(mean, logvar)
-        x_logits = model.decode(z, y)
-
-        x_flatten = tf.keras.layers.Flatten()(x)
-
-        # cross_ent = - marginal likelihood
-        cross_ent = tf.nn.sigmoid_cross_entropy_with_logits(logits=x_logits, labels=x_flatten)
-        marginal_likelihood = - tf.reduce_sum(cross_ent, axis=1)
-        marginal_likelihood = tf.reduce_mean(marginal_likelihood)
-
-        KL_divergence = tf.reduce_sum(mean ** 2 + tf.exp(logvar) - logvar - 1, axis=1)
-        KL_divergence = tf.reduce_mean(KL_divergence)
-
-        ELBO = marginal_likelihood - KL_divergence
-        loss = -ELBO
-        return loss
 
 
 class VAE(tf.keras.Model):

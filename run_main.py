@@ -25,7 +25,7 @@ def parse_args():
 
 
 def train_AE(latent_dim=2, epochs=100, lr=1e-4, batch_size=1000):
-    model = AE(latent_dim, net_type='conv')
+    model = AE(latent_dim, net_type='simple')
 
     train_dataset, test_dataset = mnist.load_dataset(batch_size=batch_size)
 

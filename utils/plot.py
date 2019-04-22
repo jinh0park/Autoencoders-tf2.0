@@ -17,7 +17,7 @@ def plot_AE(model, test_dataset):
 
     fig, axarr = plt.subplots(2, 5, figsize=(5, 2))
     x_input_sample = x_input_sample.numpy().reshape([n, 28, 28])
-    x_output = model.decode(z, apply_sigmoid=True).numpy().reshape([n, 28, 28])
+    x_output = model.decode(z).numpy().reshape([n, 28, 28])
 
     for i in range(n):
         axarr[0, i].axis('off')
@@ -138,7 +138,7 @@ def plot_CVAE(model, test_dataset):
     This part is significant only if the latent dimension is 2,
     but it works in other cases anyway.
     '''
-    z, _ = model.encode(x_input)
+    z, _ = model.encode(x_input, y_input)
     labels = y_input.numpy()
     z1, z2 = z.numpy().T[0], z.numpy().T[1]
 
@@ -165,7 +165,7 @@ def plot_CVAE(model, test_dataset):
     f.subplots_adjust(hspace=0., wspace=-0.)
     for i in range(num_classes):
         for j, z_j in enumerate(np.linspace(-3, 3, n)):
-            z = np.array([[z_j, 0, 0, 0]])
+            z = np.array([[z_j, 0]])
             z = tf.convert_to_tensor(z, dtype=tf.float32)
             generated_img = model.decode(z, [i], apply_sigmoid=True).numpy().reshape([28, 28])
             axarr[i, j].axis('off')
