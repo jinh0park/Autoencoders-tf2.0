@@ -3,7 +3,7 @@ import matplotlib.patches as mpatches
 import matplotlib
 import numpy as np
 import os
-
+import tensorflow as tf
 
 def plot_AE(model, test_dataset):
     if not os.path.exists("results"):
@@ -97,6 +97,18 @@ def plot_VAE(model, test_dataset):
     ax_dist.scatter(z1, z2, color=cs)
 
     fig_dist.savefig("results/VAE_distribution.png")
+    # --- Conceptual plot ---
+
+    n = 20
+    f, axarr = plt.subplots(n, n, figsize=(8, 8))
+    f.subplots_adjust(hspace=0., wspace=-0.)
+    for i, z1 in enumerate(np.linspace(-2, 2, n)):
+        for j, z2 in enumerate(np.linspace(-2, 2, n)):
+            z = np.array([[z1, z2]])
+            generated_img = model.decode(z, apply_sigmoid=True).numpy().reshape([28, 28])
+            axarr[i, j].axis('off')
+            axarr[i, j].imshow(generated_img, cmap='binary')
+    f.savefig("results/VAE_conceptual.png")
 
 
 def plot_CVAE(model, test_dataset):
@@ -144,4 +156,20 @@ def plot_CVAE(model, test_dataset):
     ax_dist.scatter(z1, z2, color=cs)
 
     fig_dist.savefig("results/CVAE_distribution.png")
+
+    # --- Conceptual plot ---
+
+    n = 16
+    num_classes = 10
+    f, axarr = plt.subplots(num_classes, n, figsize=(n, num_classes))
+    f.subplots_adjust(hspace=0., wspace=-0.)
+    for i in range(num_classes):
+        for j, z_j in enumerate(np.linspace(-3, 3, n)):
+            z = np.array([[z_j, 0, 0, 0]])
+            z = tf.convert_to_tensor(z, dtype=tf.float32)
+            generated_img = model.decode(z, [i], apply_sigmoid=True).numpy().reshape([28, 28])
+            axarr[i, j].axis('off')
+            axarr[i, j].imshow(generated_img, cmap='binary')
+
+    f.savefig("results/CVAE_conceptual.png")
 
