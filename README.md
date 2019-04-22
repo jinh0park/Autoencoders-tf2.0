@@ -97,6 +97,6 @@ _Optional:_
 - `--learn_rate`: Learning rate of Adam optimizer. _Default:_ `1e-4`
 
 ## References
-[1] https://github.com/hwalsuklee/tensorflow-mnist-VAE
-[2] https://www.slideshare.net/NaverEngineering/ss-96581209
-[3] https://www.tensorflow.org/alpha/tutorials/generative/cvae
+[1] https://github.com/hwalsuklee/tensorflow-mnist-VAE  
+[2] https://www.slideshare.net/NaverEngineering/ss-96581209  
+[3] https://www.tensorflow.org/alpha/tutorials/generative/cvae  
