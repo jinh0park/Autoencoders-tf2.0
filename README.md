@@ -16,7 +16,7 @@ python run_main.py --ae_type AE --num_epochs 150 --latent_dim 2
 </tr>
 <tr>
 <td>Distribution of z</td>
-<td><img src='results/AE_distribution.png'></td>
+<td><img src='results/AE_distribution.png' height=500></td>
 </tr>
 </table>
 
@@ -33,7 +33,7 @@ python run_main.py --ae_type VAE --num_epochs 150 --latent_dim 2
 </tr>
 <tr>
 <td>Distribution of z</td>
-<td><img src='results/VAE_distribution.png'></td>
+<td><img src='results/VAE_distribution.png' height=500></td>
 </tr>
 </table>
 
@@ -50,7 +50,7 @@ python run_main.py --ae_type CVAE --num_epochs 150 --latent_dim 2
 </tr>
 <tr>
 <td>Distribution of z</td>
-<td><img src='results/CVAE_distribution.png'></td>
+<td><img src='results/CVAE_distribution.png' height=500></td>
 </tr>
 </table>
 
